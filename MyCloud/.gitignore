@@ -1,0 +1,17 @@
+
+.idea
+.vscode
+dxr/
+ddd/
+mkf/
+qrcode/
+sck/
+aaa/
+
+Pipfile
+Pipfile.lock
+tempCodeRunnerFile.py
+
+__pycache__
+
+migrations

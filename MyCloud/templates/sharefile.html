@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>下载文件</title>
+    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+    <script src="../static/jquery-3.3.1.js"></script>
+    <script src="../static/bootstrap/js/bootstrap.js"></script>
+</head>
+<body>
+<!--顶部导航栏开始-->
+<div class="row bg-info">
+    <div class="col-sm-3" style="margin-left: 5%">
+        <h1>我的网盘</h1>
+    </div>
+</div>
+<!--顶部导航栏结束-->
+<div style="margin-top: 20px;">
+
+    <div class="row">
+        <div class="col-sm-2">
+
+        </div>
+        <div class="col-sm-10">
+            <div class="row">
+
+            </div>
+                <dic class="col-sm-4">
+                    <ol class="breadcrumb">
+                        <li class="active">
+                            <span id="file_name">{{ file.file_name }}</span>
+                        </li>
+                    </ol>
+                </dic>
+                <dic class="col-sm-4">
+                </dic>
+                <dic class="col-sm-4">
+                    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+                        下载文件
+                    </button>
+                </dic>
+            <table class="table table-hover" id="shareTable">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">文件名</th>
+                        <th style="width: 15%">大小</th>
+                        <th style="width: 15%">时间</th>
+                        <th style="width: 30%">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>文件名</th>
+                        <td>大小</th>
+                        <td>时间</th>
+                        <td>操作</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    
+    
+
+</div>
+</body>
+</html>

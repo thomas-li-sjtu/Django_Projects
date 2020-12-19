@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的云盘</title>
+
+    <script src="../static/jquery-3.3.1.js"></script>
+    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+    <script src="../static/bootstrap/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="../static/index.css">
+    <script src="../static/index.js"></script>
+    <script src="../static/jquery.cookie.js"></script>
+    <link rel="stylesheet" href="../static/fontawesome/css/font-awesome.css">
+</head>
+<body>
+<!--顶部导航栏开始-->
+<div class="row bg-info">
+    <div class="col-sm-3" style="margin-left: 5%">
+        <h1>我的网盘</h1>
+    </div>
+    <div class="col-sm-1 col-sm-offset-5">
+        <a href="#"><h3>{{ username }}</h3></a>
+    </div>
+    <div class="col-sm-1">
+        <a href="/logout/"><h3>注销</h3></a>
+    </div>
+</div>
+<!--顶部导航栏结束-->
+
+<div style="margin-top: 20px">
+    <div class="row">
+        <!--左侧分类标签开始-->
+        <div class="col-sm-2">
+            <ul class="nav nav-pills nav-tabs nav-stacked tabbable faq-tabbable">
+                <li role="presentation" class="active"><a href="/"><i class="fa fa-file-o fa-lg"></i> 所有文件</a></li>
+                <li role="presentation"><a href="javascript:void(0)" class="classify_link" id="doc">
+                    <i class="fa fa-file-word-o fa-lg" aria-hidden="true"></i> 文档</a></li>
+                <li role="presentation"><a href="javascript:void(0)" class="classify_link" id="img">
+                    <i class="fa fa-file-photo-o fa-lg" aria-hidden="true"></i> 图片</a></li>
+                <li role="presentation"><a href="javascript:void(0)" class="classify_link" id="video">
+                    <i class="fa fa-file-video-o fa-lg" aria-hidden="true"></i> 影音</a></li>
+                <li role="presentation"><a href="javascript:void(0)" class="classify_link" id="procedure">
+                    <i class="fa fa-android fa-lg" aria-hidden="true"></i> 应用</a></li>
+                <li role="presentation"><a href="javascript:void(0)" class="classify_link" id="others">其他</a></li>
+
+            </ul>
+        </div>
+        <!--左侧分类标签结束-->
+        <!--右侧文件表格开始-->
+        <div class="col-sm-10">
+            <!--文件路径导航开始-->
+            <div class="row">
+                <dic class="col-sm-4">
+                    <ol class="breadcrumb">
+                        {% for breadcrumb in breadcrumb_list %}
+                            {% if not forloop.last %}
+                                <li><a href="/folder/?pdir={{ breadcrumb.uri }}">{{ breadcrumb.tag }}</a></li>
+                            {% else %}
+                                <li class="active"><span id="pwd" hidden>{{ breadcrumb.uri }}</span>{{ breadcrumb.tag }}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ol>
+                </dic>
+                <div class="col-sm-4">
+
+                    <div class="input-group">
+                        <input type="text" class="form-control search-input" aria-label="...">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false" style="width: 100px">分类<span
+                                    class="caret"></span>
+                            </button>
+                            <button type="button" class="btn btn-default" style="width: 40px">
+                                <span class="search_link" title="all">
+                                    <i class="fa fa-search fa-lg" aria-hidden="true"></i></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a href="javascript:void(0)" class="search_link" title="all">
+                                    <i class="fa fa-file-o fa-lg"></i> 所有</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="javascript:void(0)" class="search_link" title="doc">
+                                    <i class="fa fa-file-word-o fa-lg" aria-hidden="true"></i> 文档</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="javascript:void(0)" class="search_link" title="img">
+                                    <i class="fa fa-file-photo-o fa-lg" aria-hidden="true"></i> 图片</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="javascript:void(0)" class="search_link" title="video">
+                                    <i class="fa fa-file-video-o fa-lg" aria-hidden="true"></i> 影音</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="javascript:void(0)" class="search_link" title="procedure">
+                                    <i class="fa fa-android fa-lg" aria-hidden="true"></i> 应用</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="javascript:void(0)" class="search_link" title="others">其他</a></li>
+                            </ul>
+                            <!-- <a href="javascript:void(0)" class="search_link" name="procedure">
+                                <i class="fa fa-android fa-lg" aria-hidden="true"></i> 查找</a>
+                                 -->
+                        </div>
+                        <div class="input-group-append">
+                            <!-- <span class="glyphicon glyphicon-search search_link" type="submit" aria-hidden="true"></span>   -->
+                        </div>
+                    </div>   
+
+                </div>
+                <div class="col-sm-4">
+                   
+                    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+                        上传文件
+                    </button>
+                    <!--上传文件模态框开始-->
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                            aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel">上传文件</h4>
+                                </div>
+                                <div class="modal-body" style="height: 90px">
+
+                                    <a href='javascript:void(0);' class="blueButton">选择文件</a>
+                                    <input type="file" class="myFileUpload" name="file" id="file">
+                                    <div class="show"></div>
+                                    <div class="progress" hidden style="margin-top: 60px">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active"
+                                             role="progressbar"
+                                             aria-valuenow="45" aria-valuemin="0"
+                                             aria-valuemax="100" style="width: 0%" id="prog">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">关闭
+                                    </button>
+                                    <button id="upload" class="btn btn-info">上传</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--上传文件模态框结束-->
+
+                    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal2">
+                        新建文件夹
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                            aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel">新建文件夹</h4>
+                                </div>
+                                <form action="/mkdir/" method="get">
+                                    <div class="modal-body">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">文件夹名:</span>
+                                            <input type="text" id="absdir" name="pwd" hidden>
+                                            <script>
+                                                var dir = $('#pwd').text();
+                                                $('#absdir').val(dir);
+                                            </script>
+                                            <input type="text" class="form-control" placeholder="新建文件夹"
+                                                   aria-describedby="basic-addon1" name="folder_name">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">关闭
+                                        </button>
+                                        <input type="submit" value="新建" class="btn btn-info">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!--上传文件模态框结束-->
+
+                </div>
+            </div>
+
+            <!--文件路径导航结束-->
+            <table class="table table-hover" id="myTable">
+                <thead>
+                <tr>
+                    <th style="width: 40%">文件名</th>
+                    <th style="width: 15%">大小</th>
+                    <th style="width: 15%">时间</th>
+                    <th style="width: 30%">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                    
+                <!--重命名文件模态框开始-->
+
+                <!-- Modal -->
+                <div class="modal fade" id="RenameFileModal" tabindex="-1" role="dialog"
+                aria-labelledby="myModalLabel" data-backdrop="static">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">重命名</h4>
+                        </div>
+                        <form action="/rename_file/" method="post">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="rename-file-addon1">新文件名:</span>
+                                    <input id="old_file_name" type="text" name="old_file_name" hidden>
+                                    <input id="rename_file_pwd" type="text" name="pwd" hidden>
+                                    <input type="text" class="form-control" id="new_file_name" name="new_file_name" placeholder="">
+                                    <input id="rename_file_type" type="text" name="file_type" hidden>
+                                    <span class="input-group-addon" id="rename-file-addon2"></span>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger pull-left"
+                                        data-dismiss="modal">关闭
+                                </button>
+                                <input type="submit" value="重命名" class="btn btn-info">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                </div>
+
+                <!--重命名文件模态框结束-->
+
+                <!--分享文件模态框开始-->
+                                        
+                <!-- Modal -->
+                <div class="modal fade" id="ShareModal" tabindex="-1" role="dialog" 
+                        aria-labelledby="myModalLabel" data-backdrop="static">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" 
+                                        aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">分享文件</h4>
+                            </div>
+                            <form id='shareform' action="" method='post' onsubmit="return false" >
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">分享方式:</span>
+                                        <input type="radio" name="mode" align="left" checked="checked">密码分享
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"> 文 件 名 :</span>
+                                        <input type="text" id="share_filename" class="form-control" value="{{ file.file_name}}" readonly="readonly" name="share_filename" >
+                                        <input type="text" value="{{ username }}" name="share_username" hidden>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon">分享时长:</span>
+                                        <input type="radio" name="duration" value="7" align="left" checked="checked">7天
+                                        <input type="radio" name="duration" value="30" align="left">30天
+                                        <input type="radio" name="duration" value="9999" align="left">无期限
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon">分享密码:</span>
+                                        <input type="text" class="form-control" placeholder="请输入分享码" name="file_sharecode">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">关闭
+                                    </button>
+                                    <button class="btn btn-info" data-toggle="modal" 
+                                        >
+                                        <span class="shareFileurl" title="{{ file.file_path }}">
+                                        <i class="fa fa-share-alt" aria-hidden="true"></i> 生成分享链接</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="ShareurlModal" tabindex="-1" role="dialog" 
+                        aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" 
+                                        aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">分享链接</h4>
+                            </div>
+                            <form id='shareform' action="" method='post' onsubmit="return false" >
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"> 分享链接:</span>
+                                        <input type="text" class="form-control" id="share_url" value="" readonly="readonly" name="file_url">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon">分享密码:</span>
+                                        <input type="text" class="form-control" id="share_code" placeholder="" readonly="readonly" name="share_code">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"> 二 维 码 :</span>
+                                        {% comment %} <img width="16" height="16" alt="star" src="data:image/gif;base64" {% endcomment %}
+                                        <img type="image" class="form-group" id="file_share_qr"
+                                            src="data:image/png;base64,"
+                                                align="left" height="20%" width="20%" readonly="readonly" name="file_share_qr">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">关闭
+                                    </button>
+                                    <button class="btn btn-info" data-toggle="modal" 
+                                        data-target="#ShareurlModal{{ file.id }}">
+                                        <span class="CopyShareUrl" title="{{ file.file_path }}">
+                                        <i class="fa fa-share-alt" aria-hidden="true"></i> 复制分享链接</span>
+                                    </button>
+                                </div>
+                            </form>                                            
+                        </div>
+                    </div>
+                </div>
+
+                <!--分享文件模态框结束-->
+
+                {% for file in index_list %}
+                    <tr>
+                        {% if file.is_file %}
+                            <td style="text-align: left"><a href="/static/{{ file.file_path }}">
+                                <i class="fa fa-file fa-lg"></i> {{ file.file_name }}</a></td>
+                        {% else %}
+                            <td style="text-align: left"><a
+                                    href="/folder/?pdir={{ file.belong_folder }}{{ file.folder_name }}" class="dir"
+                                    name=""><i class="fa fa-folder-o fa-lg"></i> {{ file.folder_name }}</a></td>
+                        {% endif %}
+                        {% if file.is_file %}
+                            <td>{{ file.file_size }}</td>
+                        {% else %}
+                            <td>---</td>
+                        {% endif %}
+                        <td>{{ file.update_time }}</td>
+                        {% if file.is_file %}
+                            <td>
+                                <!-- 下载按钮 -->
+                                <a class="btn btn-success" href="/download_file/?file_path={{ file.file_path }}">
+                                    <i class="fa fa-cloud-download fa-lg" aria-hidden="true"></i> 下载
+                                </a> 
+                                <!--分享文件模态框开始-->
+                                
+                                <!-- Modal -->
+                                <div class="modal fade" id="ShareModal" tabindex="-1" role="dialog" 
+                                     aria-labelledby="myModalLabel" data-backdrop="static">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" 
+                                                        aria-label="Close"><span
+                                                        aria-hidden="true">&times;</span></button>
+                                                <h4 class="modal-title" id="myModalLabel">分享文件</h4>
+                                            </div>
+                                            <form id='shareform' action="" method='post' onsubmit="return false" >
+                                                {% csrf_token %}
+                                                <div class="modal-body">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">分享方式:</span>
+                                                        <input type="radio" name="mode" align="left" checked="checked">密码分享
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon"> 文 件 名 :</span>
+                                                        <input type="text" id="share_filename" class="form-control" value="{{ file.file_name}}" readonly="readonly" name="share_filename" >
+                                                        <input type="text" value="{{ username }}" name="share_username" hidden>
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">分享时长:</span>
+                                                        <input type="radio" name="duration" value="7" align="left" checked="checked">7天
+                                                        <input type="radio" name="duration" value="30" align="left">30天
+                                                        <input type="radio" name="duration" value="9999" align="left">无期限
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">分享密码:</span>
+                                                        <input type="text" class="form-control" placeholder="请输入分享码" name="file_sharecode">
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">关闭
+                                                    </button>
+                                                    <button class="btn btn-info" data-toggle="modal">
+                                                        <span class="shareFileurl" title="{{ file.file_path }}">
+                                                        <i class="fa fa-share-alt" aria-hidden="true"></i> 生成分享链接</span>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="ShareurlModal" tabindex="-1" role="dialog" 
+                                        aria-labelledby="myModalLabel">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" 
+                                                        aria-label="Close"><span
+                                                        aria-hidden="true">&times;</span></button>
+                                                <h4 class="modal-title" id="myModalLabel">分享链接</h4>
+                                            </div>
+                                            <form id='shareform' action="" method='post' onsubmit="return false" >
+                                                {% csrf_token %}
+                                                <div class="modal-body">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon"> 分享链接:</span>
+                                                        <input type="text" class="form-control" id="share_url" readonly="readonly" name="share_url">
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">分享密码:</span>
+                                                        <input type="text" class="form-control" id="share_code" readonly="readonly" name="share_code">
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon"> 二 维 码 :</span>
+                                                        <img type="image" class="form-group" id="file_share_qr"
+                                                            src="data:image/png;base64,"
+                                                                align="left" height="20%" width="20%" readonly="readonly" name="file_share_qr">
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon"> 复制消息:</span>
+                                                            <input type="text" class="form-control" id="share_copy" readonly="readonly" value="" name="share_copy" >                                                    
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">关闭
+                                                    </button>
+                                                    <button class="btn btn-info">
+                                                        <span class="CopyShareUrl">
+                                                        <i class="fa fa-share-alt" aria-hidden="true"></i> 复制链接及提取码</span>
+                                                    </button>
+                                                </div>
+                                            </form>                                            
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--分享文件模态框结束-->
+                                </a>
+                                <!-- 分享按钮 -->
+                                <button class="btn btn-info" data-toggle="modal" data-target="#ShareModal" data-filename="{{ file.file_name }}">
+                                    <i class="fa fa-share-alt" aria-hidden="true"></i> 分享                                 
+                                </button>
+                                <!-- 重命名按钮 -->
+                                <button class="btn btn-warning rename_file" data-toggle="modal" data-target="#RenameFileModal" data-oldname="{{ file.file_name }}">
+                                    <i class="fa fa-gear fa-lg" aria-hidden="true"></i> 重命名
+                                </button>
+                                <!-- 删除按钮-->
+                                <button class="btn btn-danger">
+                                    <span class="deleteFile" title="{{ file.file_path }}">
+                                    <i class="fa fa-trash fa-lg" aria-hidden="true"></i>删除</span>
+                                </button>
+                                
+                            </td>
+                        {% else %}
+                            <td>
+                                <button class="btn btn-warning rename_file" data-toggle="modal"
+                                        data-target="#FolderModal{{ file.id }}">
+                                    <i class="fa fa-gear fa-lg" aria-hidden="true"></i> 重命名
+                                </button>
+                                <!---->
+
+                                <div class="modal fade" id="FolderModal{{ file.id }}" tabindex="-1" role="dialog"
+                                     aria-labelledby="myModalLabel" data-backdrop="static">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close"><span
+                                                        aria-hidden="true">&times;</span></button>
+                                                <h4 class="modal-title" id="myModalLabel">重命名</h4>
+                                            </div>
+                                            <form action="/rename_folder/" method="get">
+                                                <div class="modal-body">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon" id="basic-addon1">新文件夹名:</span>
+                                                        <input id="renamefolder_{{ file.folder_name }}" type="text"
+                                                               name="pwd" hidden>
+                                                        <input type="text" value="{{ file.folder_name }}"
+                                                               name="old_folder_name" hidden>
+                                                        <script>
+                                                            var dir = $('#pwd').text();
+                                                            $('#renamefolder_{{ file.folder_name }}').val(dir);
+                                                        </script>
+                                                        <input type="text" class="form-control"
+                                                               id="newfolder{{ file.id }}"
+                                                               placeholder="{{ file.folder_name }}"
+                                                               aria-describedby="basic-addon1" name="new_folder_name">
+
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-danger pull-left"
+                                                            data-dismiss="modal">关闭
+                                                    </button>
+                                                    <input type="submit" value="重命名" class="btn btn-info">
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!---->
+                                <a class=" btn btn-danger" onclick="firm()" id="deletefolder_{{ file.folder_name }}">
+                                    <i class="fa fa-trash fa-lg" aria-hidden="true"></i> 删除</a>
+                                <script>
+                                    function firm() {
+                                        var pwd = $('#pwd').text();
+                                        var folder_name = '{{ file.folder_name }}';
+                                        //利用对话框返回的值 （true 或者 false）
+                                        if (confirm("删除该文件夹将删除其下的所有文件及目录!")) {
+                                            $('#deletefolder_{{ file.folder_name }}').attr('href', '/delete_folder/?pwd=' + pwd + '&folder_name=' + folder_name);
+                                        } else {
+                                            $('#deletefolder_{{ file.folder_name }}').attr('href', '#');
+                                        }
+                                    }
+                                </script>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <!--右侧文件表格结束-->
+        </div>
+
+    </div>
+</div>
+
+
+</body>
+</html>
